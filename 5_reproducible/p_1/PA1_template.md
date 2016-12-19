@@ -18,14 +18,19 @@ sum.sum <- act %>%
 sum.sum$date <- 1:nrow(sum.sum)
 
 library(ggplot2)
+png("figures/hist.png", width = 750, height = 350)
 ggplot(sum.sum, aes(date, sum)) + 
     geom_bar(stat = "identity", fill = "steelblue") + #Using two variables from data frame to draw histogram 
     ggtitle("Total number of steps per day") +
     theme(plot.title = element_text(hjust = 0.5)) #R 3.3.2 cannot center the title automatically
+dev.off()
 ```
 
-<img src="PA1_template_files/figure-html/histgram_1-1.png" style="display: block; margin: auto;" />
-
+```
+## png 
+##   2
+```
+![](figures/hist.png)
 
 ```r
 mean(sum.sum$sum)
@@ -52,6 +57,7 @@ The **median** total number of steps taken per day: `10395`.
 inter.Mean <- act %>%
               group_by(interval) %>%
               summarise("Inter.average" = mean(steps, na.rm = T))
+png("figures/Timeseries.png", width = 750, height = 350)
 ggplot(inter.Mean, aes(interval, Inter.average)) +
     geom_line(color = "steelblue") + 
     ggtitle("Averaged steps per interval") +
@@ -59,9 +65,14 @@ ggplot(inter.Mean, aes(interval, Inter.average)) +
     scale_x_continuous(breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200),
                        labels = c("00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", 
                                   "14:00", "16:00", "18:00", "20:00", "22:00"))
+dev.off()
 ```
 
-<img src="PA1_template_files/figure-html/actPattern_1-1.png" style="display: block; margin: auto;" />
+```
+## png 
+##   2
+```
+![](figures/Timeseries.png)
 
 2. The inverval with the maximum number of steps
 
@@ -101,7 +112,7 @@ colSums(is.na(act))
 There are `2304` NAs in the column **step**.
 
 2. Imput missing values using kNN (k-NearestNeighbor)  
-In order to imput missing values, I use kNN through loading `DMwR` package.
+In order to imput missing values, I use kNN through loading `DMwR` package. `knnImputation()` replaces NAs in Data with the corresponding value from the nearest-neighbor column. The nearest-neighbor column is the closest column in Euclidean distance. If the corresponding value from the nearest-neighbor column is also NA, the next nearest column is used.
 
 ```r
 library(DMwR)
@@ -137,14 +148,19 @@ sum.knn.sum <- act.knn %>%
                group_by(date) %>%
                summarise("sum" = sum(steps, na.rm = T))
 sum.knn.sum$date <- 1:nrow(sum.knn.sum)
+png("figures/hist2.png", width = 750, height = 350)
 ggplot(sum.knn.sum, aes(date, sum)) + 
     geom_bar(stat = "identity", fill = "steelblue") +
     ggtitle("Total number of steps per day (After imputing)") +
     theme(plot.title = element_text(hjust = 0.5)) #R 3.3.2 cannot center the title automatically
+dev.off()
 ```
 
-<img src="PA1_template_files/figure-html/histogram_2-1.png" style="display: block; margin: auto;" />
-
+```
+## png 
+##   2
+```
+![](figures/hist2.png)
 
 ```r
 mean(sum.knn.sum$sum)
@@ -176,7 +192,8 @@ act.knn.dtype <- act.knn %>%
                 mutate(type = weekdays(as.Date(date), abbreviate = T)) %>%
                 mutate(level = ifelse(type == "Sat" | type == "Sun", "weekend", "weekday"))
 act.knn.dtype.g <- group_by(act.knn.dtype, level, interval)%>%
-                    summarise("mean"= mean(steps)) 
+                    summarise("mean"= mean(steps))
+png("figures/weekendVSweekday.png", width = 750, height = 450)
 ggplot(act.knn.dtype.g, aes(interval, mean)) + 
     geom_line(color = "steelblue") + 
     facet_wrap(~level, nrow = 2) +
@@ -185,6 +202,11 @@ ggplot(act.knn.dtype.g, aes(interval, mean)) +
     scale_x_continuous(breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200),
                        labels = c("00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", 
                                   "14:00", "16:00", "18:00", "20:00", "22:00"))
+dev.off()
 ```
 
-<img src="PA1_template_files/figure-html/weekdayVSweekend-1.png" style="display: block; margin: auto;" />
+```
+## png 
+##   2
+```
+![](figures/weekendVSweekday.png)
