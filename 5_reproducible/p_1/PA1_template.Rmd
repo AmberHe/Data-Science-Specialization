@@ -1,0 +1,121 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+##Loading and preprocessing the data
+In order to choose working directory properly, I use `choose.dir()`to choose directory interactively.
+```{r load, message=FALSE}
+path <- choose.dir()
+setwd(path)
+library(dplyr)
+act <- read.csv("activity.csv")
+```
+
+##What is mean total number of steps taken per day?
+```{r histgram_1, fig.align='center'}
+sum.sum <- act %>%
+           group_by(date) %>%
+           summarise("sum" = sum(steps, na.rm = T))
+sum.sum$date <- 1:nrow(sum.sum)
+
+library(ggplot2)
+ggplot(sum.sum, aes(date, sum)) + 
+    geom_bar(stat = "identity", fill = "steelblue") + #Using two variables from data frame to draw histogram 
+    ggtitle("Total number of steps per day") +
+    theme(plot.title = element_text(hjust = 0.5)) #R 3.3.2 cannot center the title automatically
+```
+
+```{r mean&median, comment=""}
+mean(sum.sum$sum)
+median(sum.sum$sum)
+```
+The **mean** total number of steps taken per day: `9354.23`.  
+The **median** total number of steps taken per day: `10395`.
+
+##What is the average daily activity pattern?
+1. Averaged steps per interval
+```{r actPattern_1, fig.align='center'}
+inter.Mean <- act %>%
+              group_by(interval) %>%
+              summarise("Inter.average" = mean(steps, na.rm = T))
+ggplot(inter.Mean, aes(interval, Inter.average)) +
+    geom_line(color = "steelblue") + 
+    ggtitle("Averaged steps per interval") +
+    theme(plot.title = element_text(hjust = 0.5)) +  #R 3.3.2 cannot center the title automatically
+    scale_x_continuous(breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200),
+                       labels = c("00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", 
+                                  "14:00", "16:00", "18:00", "20:00", "22:00"))
+```
+
+2. The inverval with the maximum number of steps
+```{r max, comment=""}
+maximum <- max(inter.Mean$Inter.average)
+Max <- inter.Mean$interval[which(inter.Mean$Inter.average==maximum)] %>% 
+       sprintf(fmt = "%04d") %>% #835 -> 0835
+       strptime(format = "%H%M") %>% #Convert to the standard time
+       format(format = "%H:%M")
+maximum
+Max
+```
+The `08:35` 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps, `206.1698`.
+
+##Imputing missing values
+1. Calculate the total number of missing values in dataset
+```{r naNum, comment=""}
+colSums(is.na(act))
+```
+There are `2304` NAs in the column **step**.
+
+2. Imput missing values using kNN (k-NearestNeighbor)  
+In order to imput missing values, I use kNN through loading `DMwR` package.
+```{r imput, comment="", message=FALSE}
+library(DMwR)
+act.knn <- knnImputation(act)
+colSums(is.na(act.knn))
+summary(act.knn)
+```
+After imputing, there is no NA in the dataset.
+
+3. Total number of steps taken per day (after imputing)
+```{r histogram_2, fig.align='center'}
+sum.knn.sum <- act.knn %>%
+               group_by(date) %>%
+               summarise("sum" = sum(steps, na.rm = T))
+sum.knn.sum$date <- 1:nrow(sum.knn.sum)
+ggplot(sum.knn.sum, aes(date, sum)) + 
+    geom_bar(stat = "identity", fill = "steelblue") +
+    ggtitle("Total number of steps per day (After imputing)") +
+    theme(plot.title = element_text(hjust = 0.5)) #R 3.3.2 cannot center the title automatically
+
+```
+
+```{r mean&median_2, comment=""}
+mean(sum.knn.sum$sum)
+median(sum.knn.sum$sum)
+```
+The **mean** total number of steps taken per day (after imputing): `10637.85`  
+
+The **median** total number of steps taken per day (after imputing): `10600`
+
+The values of **mean** and **median** increase after imputing missing data.
+
+##Are there differences in activity patterns between weekdays and weekends?
+```{r weekdayVSweekend, fig.align='center'}
+lct <- Sys.setlocale("LC_TIME", "C")#Set the language using by R to English instead of using default language
+#Label weekends and weekdays
+act.knn.dtype <- act.knn %>%
+                mutate(type = weekdays(as.Date(date), abbreviate = T)) %>%
+                mutate(level = ifelse(type == "Sat" | type == "Sun", "weekend", "weekday"))
+act.knn.dtype.g <- group_by(act.knn.dtype, level, interval)%>%
+                    summarise("mean"= mean(steps)) 
+ggplot(act.knn.dtype.g, aes(interval, mean)) + 
+    geom_line(color = "steelblue") + 
+    facet_wrap(~level, nrow = 2) +
+    ggtitle("Averaged steps per interval (After imputing)") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_x_continuous(breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200),
+                       labels = c("00:00", "02:00", "04:00", "06:00", "08:00", "10:00", "12:00", 
+                                  "14:00", "16:00", "18:00", "20:00", "22:00"))
+```
