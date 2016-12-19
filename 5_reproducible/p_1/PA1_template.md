@@ -51,7 +51,7 @@ The **mean** total number of steps taken per day: `9354.23`.
 The **median** total number of steps taken per day: `10395`.
 
 ##What is the average daily activity pattern?
-1. Averaged steps per interval
+1.Averaged steps per interval
 
 ```r
 inter.Mean <- act %>%
@@ -74,7 +74,7 @@ dev.off()
 ```
 ![](figures/Timeseries.png)
 
-2. The inverval with the maximum number of steps
+2.The inverval with the maximum number of steps
 
 ```r
 maximum <- max(inter.Mean$Inter.average)
@@ -99,7 +99,7 @@ Max
 The `08:35` 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps, `206.1698`.
 
 ##Imputing missing values
-1. Calculate the total number of missing values in dataset
+1.Calculate the total number of missing values in dataset
 
 ```r
 colSums(is.na(act))
@@ -111,7 +111,7 @@ colSums(is.na(act))
 ```
 There are `2304` NAs in the column **step**.
 
-2. Imput missing values using kNN (k-NearestNeighbor)  
+2.Imput missing values using kNN (k-NearestNeighbor)  
 In order to imput missing values, I use kNN through loading `DMwR` package. `knnImputation()` replaces NAs in Data with the corresponding value from the nearest-neighbor column. The nearest-neighbor column is the closest column in Euclidean distance. If the corresponding value from the nearest-neighbor column is also NA, the next nearest column is used.
 
 ```r
@@ -141,7 +141,7 @@ summary(act.knn)
 ```
 After imputing, there is no NA in the dataset.
 
-3. Total number of steps taken per day (after imputing)
+3.Total number of steps taken per day (after imputing)
 
 ```r
 sum.knn.sum <- act.knn %>%
