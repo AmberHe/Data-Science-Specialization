@@ -33,22 +33,11 @@ dev.off()
 ![](figures/hist.png)
 
 ```r
-mean(sum.sum$sum)
+Mean <- mean(sum.sum$sum)
+Median <- median(sum.sum$sum)
 ```
-
-```
-[1] 9354.23
-```
-
-```r
-median(sum.sum$sum)
-```
-
-```
-[1] 10395
-```
-The **mean** total number of steps taken per day: `9354.23`.  
-The **median** total number of steps taken per day: `10395`.
+The **mean** total number of steps taken per day: 9354.2295082.  
+The **median** total number of steps taken per day: 10395.
 
 ##What is the average daily activity pattern?
 1.Averaged steps per interval
@@ -82,21 +71,8 @@ Max <- inter.Mean$interval[which(inter.Mean$Inter.average==maximum)] %>%
        sprintf(fmt = "%04d") %>% #835 -> 0835
        strptime(format = "%H%M") %>% #Convert to the standard time
        format(format = "%H:%M")
-maximum
 ```
-
-```
-[1] 206.1698
-```
-
-```r
-Max
-```
-
-```
-[1] "08:35"
-```
-The `08:35` 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps, `206.1698`.
+The 08:35 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps, 206.1698113.
 
 ##Imputing missing values
 1.Calculate the total number of missing values in dataset
