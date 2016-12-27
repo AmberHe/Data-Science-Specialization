@@ -55,4 +55,4 @@ myData <- as.data.frame(t(sapply(dat.mean.std.g, colMeans)))
 rownames(myData) <- 1:180
 myData$label <- as.factor(myData$label)
 levels(myData$label) <- c("Walking", "WalkingUp", "WalkingDown", "Sitting", "Standing", "Laying")
-write.csv(myData, file = "tidyData.csv")
+write.table(myData, "tidyData.txt", row.names = F) 
